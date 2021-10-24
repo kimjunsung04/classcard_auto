@@ -236,9 +236,9 @@ while 1:
             element = driver.find_element_by_xpath(f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[1]/div[2]")
             driver.execute_script("arguments[0].click();", element)
 
-            cash_dby = [0,0,0]
+            cash_dby = [0,0,0,0]
 
-            for j in range(0,3):
+            for j in range(0,4):
                 cash_dby[j] = driver.find_element_by_xpath(
                     f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[2]/div/div[1]/div[{j+1}]/label/div/div"
                 ).text
@@ -246,22 +246,26 @@ while 1:
             time.sleep(2)
             ck = False
             if cash_d.upper() != cash_d.lower():
-                try:
-                    for j in range(0,4):
-                        if da_e.index(cash_d) == da_k.index(cash_dby[j]):
-                            element = driver.find_element_by_xpath(f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[2]/div/div[1]/div[{j+1}]/label/div/div")
-                            driver.execute_script("arguments[0].click();", element)
-                            ck = True
-                            break
-                except:
-                    pass
-                if ck != True:
-                    print("\n찾을수없는 단어 감지로 랜덤으로 찍기발동!!\n")
-                    driver.find_element_by_xpath(
-                        f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[2]/div/div[1]/div[{random.randint(1, 4)}]/label/div/div"
-                    ).click()
-                    time.sleep(2)
-            time.sleep(1)
+                for j in range(0,4):
+                    if da_e.index(cash_d) == da_k.index(cash_dby[j]):
+                        element = driver.find_element_by_xpath(f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[2]/div/div[1]/div[{j+1}]/label/div/div")
+                        driver.execute_script("arguments[0].click();", element)
+                        ck = True
+                        break
+            else:
+                for j in range(0,4):
+                    if da_k.index(cash_d) == da_e.index(cash_dby[j]):
+                        element = driver.find_element_by_xpath(f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[2]/div/div[1]/div[{j+1}]/label/div/div")
+                        driver.execute_script("arguments[0].click();", element)
+                        ck = True
+                        break
+            if ck != True:
+                print("\n찾을수없는 단어 감지로 랜덤으로 찍기발동!!\n")
+                driver.find_element_by_xpath(
+                    f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[2]/div/div[1]/div[{random.randint(1, 4)}]/label/div/div"
+                ).click()
+                time.sleep(2)
+            time.sleep(3)
 
 
     driver.get(class_site)
