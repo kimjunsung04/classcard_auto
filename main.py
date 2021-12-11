@@ -18,7 +18,7 @@ if id_d == "" or pw_d == "":
     json_data["login"]["pw"] = getpass.getpass("비밀번호를 입력하세요 : ")
     with open("./config.json", "w") as f:
         json.dump(json_data, f, indent=4)
-    print("\n아디이 비밀번호가 저장되었습니다.\n")
+    print("\n아이디 비밀번호가 저장되었습니다.\n")
 
 class_site = input("학습할 세트URL을 입력하세요 : ")
 
