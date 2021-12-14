@@ -1,10 +1,11 @@
+import requests
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
-import time, json, random, getpass
+import time, json, random, getpass, os
 import warnings
 
 # 함수불러오기
@@ -12,18 +13,32 @@ from utility import word_get
 from utility import chd_wh
 
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
-with open("./config.json", "r") as f:
-    json_data = json.load(f)
 
-id_d = json_data["login"]["id"]
-pw_d = json_data["login"]["pw"]
-
-if id_d == "" or pw_d == "":
-    json_data["login"]["id"] = input("아이디를 입력하세요 : ")
-    json_data["login"]["pw"] = getpass.getpass("비밀번호를 입력하세요 : ")
-    with open("./config.json", "w") as f:
-        json.dump(json_data, f, indent=4)
-    print("\n아이디 비밀번호가 저장되었습니다.\n")
+#로그인
+if os.path.isfile("config.json"):
+    with open("config.json", "r", encoding='utf-8') as f:
+        json_data = json.load(f)
+        id_d = json_data["id"]
+        pw_d = json_data["pw"]    
+else:
+    with open("config.json", 'w', encoding='utf-8') as f:
+        while True:
+            id = input("아이디를 입력하세요 : ")
+            password = getpass.getpass("비밀번호를 입력하세요 : ")
+            #확인
+            headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+            data = {'login_id' : id, 'login_pwd': password}
+            res = requests.post("https://www.classcard.net/LoginProc", headers=headers ,data=data)
+            if res.json()['result'] == 'ok':
+                id_d = id
+                pw_d = password
+                data = {'id' : id, 'pw' : password}
+                json.dump(data, f, ensure_ascii=False, indent=4) 
+                print("아이디 비밀번호가 저장되었습니다.\n")
+                break
+            else:
+                print("아이디 또는 비밀번호가 잘못되었습니다.\n")
+                continue
 
 class_site = input("학습할 세트URL을 입력하세요 : ")
 
