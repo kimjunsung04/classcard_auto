@@ -1,12 +1,17 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
 import time, json, random, getpass
+import warnings
 
 # 함수불러오기
 from utility import word_get
 from utility import chd_wh
 
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
 with open("./config.json", "r") as f:
     json_data = json.load(f)
 
@@ -26,9 +31,9 @@ ch_d = chd_wh()
 
 #장치 동작하지않음 방지
 options = webdriver.ChromeOptions()
-options.add_experimental_option("excludeSwitches", ["enable-logging"])
+options.add_experimental_option('excludeSwitches', ['enable-logging'])
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-driver = webdriver.Chrome(options=options)
 driver.get("https://www.classcard.net/Login")
 time.sleep(1.5)
 tag_id = driver.find_element_by_id("login_id")
@@ -84,10 +89,7 @@ da_e = word_d[0]
 da_k = word_d[1]
 da_kyn = word_d[2]
 while 1:
-    if ch_d == 0:
-        input("종료하려면 아무 키나 누르세요...")
-        quit()
-    elif ch_d == 1:
+    if ch_d == 1:
         driver.find_element_by_css_selector(
             "#tab_set_all > div.card-list-title > div > div.text-right > a:nth-child(1)"
         ).click()
@@ -266,7 +268,63 @@ while 1:
                 ).click()
                 time.sleep(2)
             time.sleep(3)
-
+    if ch_d == 5:
+        print('Ctrl + C 를 눌러 강제 종료')
+        ##매칭 게임
+        driver.find_element_by_css_selector('a.w-120:nth-child(2) > div:nth-child(1)').click()
+        time.sleep(1)
+        
+        #단어 1000개 이상
+        try:
+            driver.find_element_by_xpath('/html/body/div[53]/div[2]/div/div[2]/a[3]').click()
+            time.sleep(1)
+        except Exception as e:
+            pass
+        driver.find_element_by_xpath('/html/body/div[5]/div[2]/div/div/div[1]/div[4]/a[1]').click()
+        #매칭 게임 시작
+        past_cards = ''
+        while True:
+            try:
+                html = BeautifulSoup(driver.page_source, 'html.parser')
+                #점수 순으로 정렬
+                unsorted_cards = dict()
+                cards = html.find('div', class_='match-body').get_text(strip=True)
+                #이전 카드와 같으면 다시
+                if past_cards == cards:
+                    raise NotImplementedError
+                for i in range(4):
+                    left_card = html.find('div', id='left_card_{}'.format(i))
+                    score = int(left_card.find('span', class_='card-score').get_text(strip=True))
+                    left_card.find('span', class_='card-score').decompose()
+                    question = left_card.get_text(strip=True)
+                    unsorted_cards['{}_{}'.format(question, str(i))] = score
+                    #점수 높은 순서로 배열
+                    sorted_lists = {k: v for k, v in sorted(unsorted_cards.items(), key=lambda item: item[1])}.keys()
+                for k in sorted_lists:
+                    word = k.split('_')[0]
+                    order = k.split('_')[1]
+                    # answer = list[word]
+                    answer = da_k[da_e.index(word)]
+                    
+                    for j in range(4):
+                        right_card = html.find('div', id='right_card_{}'.format(j)).get_text(strip=True)
+                        if right_card == answer:
+                            driver.find_element_by_id('left_card_{}'.format(order)).click()
+                            driver.find_element_by_id('right_card_{}'.format(j)).click()
+                            raise NotImplementedError
+                        else:
+                            continue
+            except NotImplementedError:
+                if driver.find_element_by_class_name("rank-info").size['height'] > 0:
+                    print("완료되었습니다")
+                    driver.find_element_by_css_selector(".btn-default").click()
+                    time.sleep(1)
+                    break
+                else:            
+                    past_cards = cards
+            except KeyboardInterrupt:
+                break
+                 
 
     driver.get(class_site)
     ch_d = chd_wh()
