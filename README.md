@@ -10,18 +10,16 @@ https://user-images.githubusercontent.com/70435510/123519683-d092c080-d6e7-11eb-
 아래 사항들이 설치가 되어있어야합니다.
 
 ```
-selenium
+Chrome
 ```
 
 ### Installing / 설치
 아래 사항들로 현 프로젝트에 관한 모듈들을 설치할 수 있습니다.
 
-pip install selenium
+```
+pip install -r requirements.txt
+```
 
-**크롬 드라이브 설치방법(꼭 설치하셔야 합니다.)**
-
-1. [크롬 드라이브](https://chromedriver.chromium.org/downloads)를 자신의 크롬버전에 맞는것을 클릭하여 윈도우 32버전으로 설치한다.
-2. 설치한 파일의 압축을 풀고 압축을 푼 파일은 해당 디렉토리로 이동시킨다.
 
 ### 구현방법
 
@@ -40,7 +38,7 @@ pip install selenium
 
 동작에 문제가 있다면 사용환경, 오류코드를 꼭 남겨주세요.
 
-## Contributiong / 기여
+## Contribution / 기여
 
 소스 수정사항이 있다면 Pull requests 로 열어주세요.
 

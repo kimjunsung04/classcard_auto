@@ -34,26 +34,23 @@ def chd_wh():
     print(
     """
 학습유형을 선택해주세요.
-[0] 끝내기
+Ctrl + C 를 눌러 종료
 [1] 암기학습
 [2] 리콜학습
 [3] 스펠학습
 [4] 테스트학습
+[5] 매칭
     """
     )
     while 1:
         try:
             ch_d = int(input(">>> "))
-        except:
-            print("학습유형은 정수로만 선택 가능합니다. 다시 입력해주세요.")
-        else:
-            for i in range(0, 5):
-                if i == ch_d:
-                    ch = True
-                    break
-                ch = False
-            if ch == True:
+            if ch_d >= 1 and ch_d <= 5:
                 break
-
+            else:
+                raise ValueError
+        except ValueError:
             print("학습유형을 다시 입력해주세요.")
+        except KeyboardInterrupt:
+            quit()
     return ch_d
