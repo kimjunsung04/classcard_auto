@@ -1,8 +1,10 @@
 import requests
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import time, json, random, getpass, os
@@ -14,31 +16,43 @@ from utility import chd_wh
 
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
-#로그인
-if os.path.isfile("config.json"):
-    with open("config.json", "r", encoding='utf-8') as f:
-        json_data = json.load(f)
-        id_d = json_data["id"]
-        pw_d = json_data["pw"]    
-else:
-    with open("config.json", 'w', encoding='utf-8') as f:
-        while True:
-            id = input("아이디를 입력하세요 : ")
-            password = getpass.getpass("비밀번호를 입력하세요 : ")
-            #확인
-            headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
-            data = {'login_id' : id, 'login_pwd': password}
-            res = requests.post("https://www.classcard.net/LoginProc", headers=headers ,data=data)
-            if res.json()['result'] == 'ok':
-                id_d = id
-                pw_d = password
-                data = {'id' : id, 'pw' : password}
+def check_id(id, pw):
+    headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+    data = {'login_id' : id, 'login_pwd': pw}
+    res = requests.post("https://www.classcard.net/LoginProc", headers=headers ,data=data)
+    status = res.json()
+    if res.json()['result'] == 'ok':
+        return True
+    else:
+        return False
+
+
+def save_id():
+    while True:
+        id = input("아이디를 입력하세요 : ")
+        password = input("비밀번호를 입력하세요 : ")
+        if check_id(id, password):
+            data = {'id' : id, 'pw' : password}
+            with open("config.json", 'w' , encoding='utf-8') as f:
                 json.dump(data, f, ensure_ascii=False, indent=4) 
-                print("아이디 비밀번호가 저장되었습니다.\n")
-                break
-            else:
-                print("아이디 또는 비밀번호가 잘못되었습니다.\n")
-                continue
+            print("아이디 비밀번호가 저장되었습니다.\n")
+            return data
+        else:
+            print("아이디 또는 비밀번호가 잘못되었습니다.\n")
+            continue
+
+
+def get_id():
+    try:
+        with open("config.json", "r", encoding='utf-8') as f:
+            json_data = json.load(f)
+            json_data['id']
+            json_data['pw']
+            return json_data
+    except:
+        return save_id()
+
+account = get_id()
 
 class_site = input("학습할 세트URL을 입력하세요 : ")
 
@@ -50,50 +64,39 @@ options.add_experimental_option('excludeSwitches', ['enable-logging'])
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 driver.get("https://www.classcard.net/Login")
-time.sleep(1.5)
 tag_id = driver.find_element_by_id("login_id")
 tag_pw = driver.find_element_by_id("login_pwd")
 tag_id.clear()
-
-tag_id.send_keys(id_d)
-tag_pw.send_keys(pw_d)
-
-time.sleep(1)
-
+tag_id.send_keys(account['id'])
+tag_pw.send_keys(account['pw'])
 driver.find_element_by_css_selector(
     "#loginForm > div.checkbox.primary.text-primary.text-center.m-t-md > button"
 ).click()
 
-time.sleep(1)
 try:
+    time.sleep(1)
     driver.get(class_site)
+    driver.find_elements(By.XPATH, "//div[@class='p-b-sm']")
 except:
     print("\n입력한 URL이 잘못되어 프로그램을 종료합니다\n")
     input("종료하려면 아무 키나 누르세요...")
     quit()
 time.sleep(1)
 
-try:
-    driver.find_element_by_css_selector(
-        "body > div.mw-1080 > div.p-b-sm > div.set-body.m-t-25.m-b-lg > div.m-b-md > div > a"
-    ).click()
-    driver.find_element_by_css_selector(
-        "body > div.mw-1080 > div.p-b-sm > div.set-body.m-t-25.m-b-lg > div.m-b-md > div > ul > li:nth-child(1)"
-    ).click()
-except:
-    print("\n아이디 비밀번호 불일치로 프로그램을 종료합니다.\n아이디 비밀번호를 신규 등록해주세요.\n")
-    json_data["login"]["id"] = ""
-    json_data["login"]["pw"] = ""
-    with open("./config.json", "w") as f:
-        json.dump(json_data, f, indent=4)
-    input("종료하려면 아무 키나 누르세요...")
-    quit()
+driver.find_element_by_css_selector(
+    "body > div.mw-1080 > div.p-b-sm > div.set-body.m-t-25.m-b-lg > div.m-b-md > div > a"
+).click()
+driver.find_element_by_css_selector(
+    "body > div.mw-1080 > div.p-b-sm > div.set-body.m-t-25.m-b-lg > div.m-b-md > div > ul > li:nth-child(1)"
+).click()
 
-cash_d = driver.find_element_by_xpath(
-    f"/html/body/div[1]/div[2]/div/div[1]/div[1]/div[2]"
-).text
-num_d = [int(s) for s in cash_d.split() if s.isdigit()]
-num_d = int(num_d[0] + 1)
+# cash_d = driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/div[1]/div[1]/div[2]").text
+# cash_d = driver.find_element(By.CLASS_NAME 'set-name-header').text
+html = BeautifulSoup(driver.page_source, 'html.parser')
+cards_ele = html.find('div', class_='flip-body')
+num_d = len(cards_ele.find_all('div', class_='flip-card')) + 1
+# num_d = [int(s) for s in cash_d.split() if s.isdigit()]
+# num_d = int(num_d[0] + 1)
 
 
 time.sleep(0.5)
@@ -297,6 +300,7 @@ while 1:
             pass
         driver.find_element_by_xpath('/html/body/div[5]/div[2]/div/div/div[1]/div[4]/a[1]').click()
         #매칭 게임 시작
+        time.sleep(2.5)
         past_cards = ''
         while True:
             try:
@@ -324,8 +328,17 @@ while 1:
                     for j in range(4):
                         right_card = html.find('div', id='right_card_{}'.format(j)).get_text(strip=True)
                         if right_card == answer:
-                            driver.find_element_by_id('left_card_{}'.format(order)).click()
-                            driver.find_element_by_id('right_card_{}'.format(j)).click()
+                            left_element = driver.find_element_by_id('left_card_{}'.format(order))
+                            right_element =driver.find_element_by_id('right_card_{}'.format(j))
+                            try:
+                                left_element.click()
+                                right_element.click()
+                            except ElementClickInterceptedException:
+                                action = ActionChains(driver)
+                                action.click(on_element=left_element)
+                                action.click(on_element=right_element)
+                                action.perform()
+                                action.reset_actions()
                             raise NotImplementedError
                         else:
                             continue
