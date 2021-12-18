@@ -74,12 +74,9 @@ except:
     input("종료하려면 아무 키나 누르세요...")
     quit()
 
-cash_d = driver.find_element_by_xpath(
-    f"/html/body/div[1]/div[2]/div/div[1]/div[1]/div[2]"
-).text
-num_d = [int(s) for s in cash_d.split() if s.isdigit()]
-num_d = int(num_d[0] + 1)
-
+html = BeautifulSoup(driver.page_source, 'html.parser')
+cards_ele = html.find('div', class_='flip-body')
+num_d = len(cards_ele.find_all('div', class_='flip-card')) + 1
 
 time.sleep(0.5)
 
