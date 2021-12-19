@@ -5,7 +5,7 @@ from selenium.common.exceptions import NoSuchElementException, ElementClickInter
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
+import chromedriver_autoinstaller
 from bs4 import BeautifulSoup
 import time, json, random, getpass, os
 import warnings
@@ -61,7 +61,7 @@ ch_d = chd_wh()
 #장치 동작하지않음 방지
 options = webdriver.ChromeOptions()
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+driver = webdriver.Chrome(service=Service(chromedriver_autoinstaller.install()), options=options)
 
 driver.get("https://www.classcard.net/Login")
 tag_id = driver.find_element_by_id("login_id")
