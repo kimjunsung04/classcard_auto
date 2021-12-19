@@ -1,3 +1,8 @@
 __pycache__/
 *.py[cod]
 .vscode/
+config.json
+build/
+dist/
+UI/
+venv/
