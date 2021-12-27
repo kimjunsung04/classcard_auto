@@ -1,56 +1,20 @@
-import requests
+import random
+import time
+import warnings
+
+import chromedriver_autoinstaller
+from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
+from selenium.common.exceptions import (ElementClickInterceptedException,
+                                        NoSuchElementException)
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
-import chromedriver_autoinstaller
-from bs4 import BeautifulSoup
-import time, json, random, getpass, os
-import warnings
 
 # 함수불러오기
-from utility import word_get
-from utility import chd_wh
+from utility import chd_wh, get_id, word_get
 
-warnings.filterwarnings("ignore", category=DeprecationWarning) 
-
-def check_id(id, pw):
-    headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
-    data = {'login_id' : id, 'login_pwd': pw}
-    res = requests.post("https://www.classcard.net/LoginProc", headers=headers ,data=data)
-    status = res.json()
-    if res.json()['result'] == 'ok':
-        return True
-    else:
-        return False
-
-
-def save_id():
-    while True:
-        id = input("아이디를 입력하세요 : ")
-        password = input("비밀번호를 입력하세요 : ")
-        if check_id(id, password):
-            data = {'id' : id, 'pw' : password}
-            with open("config.json", 'w' , encoding='utf-8') as f:
-                json.dump(data, f, ensure_ascii=False, indent=4) 
-            print("아이디 비밀번호가 저장되었습니다.\n")
-            return data
-        else:
-            print("아이디 또는 비밀번호가 잘못되었습니다.\n")
-            continue
-
-
-def get_id():
-    try:
-        with open("config.json", "r", encoding='utf-8') as f:
-            json_data = json.load(f)
-            json_data['id']
-            json_data['pw']
-            return json_data
-    except:
-        return save_id()
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 account = get_id()
 
@@ -58,17 +22,19 @@ class_site = input("학습할 세트URL을 입력하세요 : ")
 
 ch_d = chd_wh()
 
-#장치 동작하지않음 방지
+# 장치 동작하지않음 방지
 options = webdriver.ChromeOptions()
-options.add_experimental_option('excludeSwitches', ['enable-logging'])
-driver = webdriver.Chrome(service=Service(chromedriver_autoinstaller.install()), options=options)
+options.add_experimental_option("excludeSwitches", ["enable-logging"])
+driver = webdriver.Chrome(
+    service=Service(chromedriver_autoinstaller.install()), options=options
+)
 
 driver.get("https://www.classcard.net/Login")
 tag_id = driver.find_element_by_id("login_id")
 tag_pw = driver.find_element_by_id("login_pwd")
 tag_id.clear()
-tag_id.send_keys(account['id'])
-tag_pw.send_keys(account['pw'])
+tag_id.send_keys(account["id"])
+tag_pw.send_keys(account["pw"])
 driver.find_element_by_css_selector(
     "#loginForm > div.checkbox.primary.text-primary.text-center.m-t-md > button"
 ).click()
@@ -90,9 +56,9 @@ driver.find_element_by_css_selector(
     "body > div.mw-1080 > div.p-b-sm > div.set-body.m-t-25.m-b-lg > div.m-b-md > div > ul > li:nth-child(1)"
 ).click()
 
-html = BeautifulSoup(driver.page_source, 'html.parser')
-cards_ele = html.find('div', class_='flip-body')
-num_d = len(cards_ele.find_all('div', class_='flip-card')) + 1
+html = BeautifulSoup(driver.page_source, "html.parser")
+cards_ele = html.find("div", class_="flip-body")
+num_d = len(cards_ele.find_all("div", class_="flip-card")) + 1
 
 time.sleep(0.5)
 
@@ -135,9 +101,9 @@ while 1:
                     f"//*[@id='wrapper-learn']/div/div/div[2]/div[2]/div[{i}]/div[1]/div/div/div/div[1]/span"
                 ).text
 
-                cash_dby = [0,0,0]
+                cash_dby = [0, 0, 0]
 
-                for j in range(0,3):
+                for j in range(0, 3):
                     cash_dby[j] = driver.find_element_by_xpath(
                         f"//*[@id='wrapper-learn']/div/div/div[2]/div[2]/div[{i}]/div[3]/div[{j+1}]/div[2]/div"
                     ).text
@@ -145,7 +111,7 @@ while 1:
                 ck = False
                 if cash_d.upper() != cash_d.lower():
                     try:
-                        for j in range(0,3):
+                        for j in range(0, 3):
                             if da_e.index(cash_d) == da_kyn.index(cash_dby[j]):
                                 driver.find_element_by_xpath(
                                     f"//*[@id='wrapper-learn']/div/div/div[2]/div[2]/div[{i}]/div[3]/div[{j+1}]/div[2]"
@@ -247,13 +213,15 @@ while 1:
             cash_d = driver.find_element_by_xpath(
                 f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[1]/div[2]/div/div/div"
             ).text
-            
-            element = driver.find_element_by_xpath(f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[1]/div[2]")
+
+            element = driver.find_element_by_xpath(
+                f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[1]/div[2]"
+            )
             driver.execute_script("arguments[0].click();", element)
 
-            cash_dby = [0,0,0,0]
+            cash_dby = [0, 0, 0, 0]
 
-            for j in range(0,4):
+            for j in range(0, 4):
                 cash_dby[j] = driver.find_element_by_xpath(
                     f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[2]/div/div[1]/div[{j+1}]/label/div/div"
                 ).text
@@ -261,16 +229,20 @@ while 1:
             time.sleep(2)
             ck = False
             if cash_d.upper() != cash_d.lower():
-                for j in range(0,4):
+                for j in range(0, 4):
                     if da_e.index(cash_d) == da_k.index(cash_dby[j]):
-                        element = driver.find_element_by_xpath(f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[2]/div/div[1]/div[{j+1}]/label/div/div")
+                        element = driver.find_element_by_xpath(
+                            f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[2]/div/div[1]/div[{j+1}]/label/div/div"
+                        )
                         driver.execute_script("arguments[0].click();", element)
                         ck = True
                         break
             else:
-                for j in range(0,4):
+                for j in range(0, 4):
                     if da_k.index(cash_d) == da_e.index(cash_dby[j]):
-                        element = driver.find_element_by_xpath(f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[2]/div/div[1]/div[{j+1}]/label/div/div")
+                        element = driver.find_element_by_xpath(
+                            f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[2]/div/div[1]/div[{j+1}]/label/div/div"
+                        )
                         driver.execute_script("arguments[0].click();", element)
                         ck = True
                         break
@@ -282,49 +254,68 @@ while 1:
                 time.sleep(2)
             time.sleep(3)
     if ch_d == 5:
-        print('Ctrl + C 를 눌러 강제 종료')
+        print("Ctrl + C 를 눌러 강제 종료")
         ##매칭 게임
-        driver.find_element_by_css_selector('a.w-120:nth-child(2) > div:nth-child(1)').click()
+        driver.find_element_by_css_selector(
+            "a.w-120:nth-child(2) > div:nth-child(1)"
+        ).click()
         time.sleep(1)
-        
-        #단어 1000개 이상
+
+        # 단어 1000개 이상
         try:
-            driver.find_element_by_xpath('/html/body/div[53]/div[2]/div/div[2]/a[3]').click()
+            driver.find_element_by_xpath(
+                "/html/body/div[53]/div[2]/div/div[2]/a[3]"
+            ).click()
             time.sleep(1)
         except Exception as e:
             pass
-        driver.find_element_by_xpath('/html/body/div[5]/div[2]/div/div/div[1]/div[4]/a[1]').click()
-        #매칭 게임 시작
+        driver.find_element_by_xpath(
+            "/html/body/div[5]/div[2]/div/div/div[1]/div[4]/a[1]"
+        ).click()
+        # 매칭 게임 시작
         time.sleep(2.5)
-        past_cards = ''
+        past_cards = ""
         while True:
             try:
-                html = BeautifulSoup(driver.page_source, 'html.parser')
-                #점수 순으로 정렬
+                html = BeautifulSoup(driver.page_source, "html.parser")
+                # 점수 순으로 정렬
                 unsorted_cards = dict()
-                cards = html.find('div', class_='match-body').get_text(strip=True)
-                #이전 카드와 같으면 다시
+                cards = html.find("div", class_="match-body").get_text(strip=True)
+                # 이전 카드와 같으면 다시
                 if past_cards == cards:
                     raise NotImplementedError
                 for i in range(4):
-                    left_card = html.find('div', id='left_card_{}'.format(i))
-                    score = int(left_card.find('span', class_='card-score').get_text(strip=True))
-                    left_card.find('span', class_='card-score').decompose()
+                    left_card = html.find("div", id="left_card_{}".format(i))
+                    score = int(
+                        left_card.find("span", class_="card-score").get_text(strip=True)
+                    )
+                    left_card.find("span", class_="card-score").decompose()
                     question = left_card.get_text(strip=True)
-                    unsorted_cards['{}_{}'.format(question, str(i))] = score
-                    #점수 높은 순서로 배열
-                    sorted_lists = {k: v for k, v in sorted(unsorted_cards.items(), key=lambda item: item[1])}.keys()
+                    unsorted_cards["{}_{}".format(question, str(i))] = score
+                    # 점수 높은 순서로 배열
+                    sorted_lists = {
+                        k: v
+                        for k, v in sorted(
+                            unsorted_cards.items(), key=lambda item: item[1]
+                        )
+                    }.keys()
                 for k in sorted_lists:
-                    word = k.split('_')[0]
-                    order = k.split('_')[1]
+                    word = k.split("_")[0]
+                    order = k.split("_")[1]
                     # answer = list[word]
                     answer = da_k[da_e.index(word)]
-                    
+
                     for j in range(4):
-                        right_card = html.find('div', id='right_card_{}'.format(j)).get_text(strip=True)
+                        right_card = html.find(
+                            "div", id="right_card_{}".format(j)
+                        ).get_text(strip=True)
                         if right_card == answer:
-                            left_element = driver.find_element_by_id('left_card_{}'.format(order))
-                            right_element =driver.find_element_by_id('right_card_{}'.format(j))
+                            left_element = driver.find_element_by_id(
+                                "left_card_{}".format(order)
+                            )
+                            right_element = driver.find_element_by_id(
+                                "right_card_{}".format(j)
+                            )
                             try:
                                 left_element.click()
                                 right_element.click()
@@ -338,16 +329,15 @@ while 1:
                         else:
                             continue
             except NotImplementedError:
-                if driver.find_element_by_class_name("rank-info").size['height'] > 0:
+                if driver.find_element_by_class_name("rank-info").size["height"] > 0:
                     print("완료되었습니다")
                     driver.find_element_by_css_selector(".btn-default").click()
                     time.sleep(1)
                     break
-                else:            
+                else:
                     past_cards = cards
             except KeyboardInterrupt:
                 break
-                 
 
     driver.get(class_site)
     ch_d = chd_wh()
