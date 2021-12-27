@@ -65,6 +65,7 @@ Ctrl + C 를 눌러 종료
 
 
 def check_id(id, pw):
+    print("계정 정보를 확인하고 있습니다 잠시만 기다려주세요!")
     headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
     data = {"login_id": id, "login_pwd": pw}
     res = requests.post(

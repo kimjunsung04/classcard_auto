@@ -22,6 +22,8 @@ class_site = input("학습할 세트URL을 입력하세요 : ")
 
 ch_d = chd_wh()
 
+print("크롬 드라이브를 불러오고 있습니다 잠시만 기다려주세요!")
+
 # 장치 동작하지않음 방지
 options = webdriver.ChromeOptions()
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
