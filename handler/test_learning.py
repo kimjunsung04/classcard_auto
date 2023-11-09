@@ -18,7 +18,8 @@ class TestLearning:
         ).click()  # 세트 화면에서 테스트 학습 버튼 클릭
         time.sleep(1)
         driver.find_element(  # 테스트 학습 시작 버튼 클릭
-            By.XPATH, "/html/body/div[2]/div/div[1]/div[1]/div[4]/a"
+            By.CSS_SELECTOR,
+            "#wrapper-test > div > div.quiz-start-div > div.layer.retry-layer.box > div.m-t-xl > a",
         ).click()
         time.sleep(0.2)
         driver.find_element(  # 테스트 학습 시작 버튼 클릭
