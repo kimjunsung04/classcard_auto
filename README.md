@@ -1,5 +1,3 @@
-
-https://github.com/kimjunsung04/classcard_auto/assets/70435510/d5e6f2b3-e711-4853-98f4-bfdde73e6788
 # 클래스카드 오토 매크로
 
 ## 시연영상
