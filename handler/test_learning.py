@@ -21,15 +21,19 @@ class TestLearning:
             By.CSS_SELECTOR,
             "#wrapper-test > div > div.quiz-start-div > div.layer.retry-layer.box > div.m-t-xl > a",
         ).click()
-        time.sleep(0.2)
+        time.sleep(0.5)
         driver.find_element(  # 테스트 학습 시작 버튼 클릭
-            By.XPATH, "/html/body/div[2]/div/div[1]/div[3]/div[3]/a"
+            By.CSS_SELECTOR,
+            "#wrapper-test > div > div.quiz-start-div > div.layer.prepare-layer.box.bg-gray.text-white > div.text-center.m-t-md > a",
         ).click()
-        time.sleep(0.2)
-        driver.find_element(  # 테스트 학습 유의사항 확인 버튼 클릭
-            By.XPATH, "/html/body/div[35]/div[2]/div/div[2]/a"
-        ).click()
-
+        time.sleep(0.5)
+        try:
+            driver.find_element(  # 테스트 학습 유의사항 확인 버튼 클릭
+                By.CSS_SELECTOR,
+                "#alertModal > div.modal-dialog > div > div.text-center.m-t-xl > a",
+            ).click()
+        except:
+            pass
         time.sleep(1.5)
         num_d = driver.find_element(
             By.XPATH, "/html/body/div[2]/div/div[2]/div[1]/div/span[2]/span"
