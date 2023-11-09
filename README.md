@@ -1,8 +1,10 @@
+
+https://github.com/kimjunsung04/classcard_auto/assets/70435510/d5e6f2b3-e711-4853-98f4-bfdde73e6788
 # 클래스카드 오토 매크로
 
 ## 시연영상
 
-[영상부분]
+https://github.com/kimjunsung04/classcard_auto/assets/70435510/3261a3ad-7820-4796-9cfd-48d01957f699
 
 ## Getting Started / 어떻게 시작하나요?
 
