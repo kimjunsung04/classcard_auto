@@ -21,12 +21,12 @@ class RecallLearning:
             By.CSS_SELECTOR,
             "#wrapper-learn > div.start-opt-body > div > div > div > div.m-t > a",
         ).click()  # 리콜학습 시작 버튼
-        time.sleep(1)
+        time.sleep(1.5)
         for i in range(num_d):  # 단어 수 만큼 반복
             try:
                 cash_d = driver.find_element(
                     By.XPATH,
-                    f"//*[@id='wrapper-learn']/div[1]/div/div[2]/div[2]/div[{i+1}]/div[1]/div/div/div/div[1]",
+                    f"//*[@id='wrapper-learn']/div[1]/div/div[2]/div[2]/div[{i+1}]/div[1]/div/div/div/div[1]/span",
                 ).text  # 메인 단어 추출
 
                 cash_dby = [  # 선택창에서 모름 제외 3개 단어 추출
@@ -45,7 +45,7 @@ class RecallLearning:
                             if da_e.index(cash_d) == da_kyn.index(cash_dby[j]):
                                 driver.find_element(  # 클릭
                                     By.XPATH,
-                                    f"//*[@id='wrapper-learn']/div/div/div[2]/div[2]/div[{i+1}]/div[3]/div[{j+1}]/div[2]",
+                                    f"//*[@id='wrapper-learn']/div/div/div[2]/div[2]/div[{i+1}]/div[3]/div[{j+1}]",
                                 ).click()
                                 ck = True  # 찾음
                                 break
@@ -53,7 +53,7 @@ class RecallLearning:
                         print("\n찾을수없는 단어 감지로 랜덤으로 찍기발동!!\n")  # 랜덤으로 찍기
                         driver.find_element(  # 랜덤으로 클릭
                             By.XPATH,
-                            f"//*[@id='wrapper-learn']/div/div/div[2]/div[2]/div[{i+1}]/div[3]/div[{random.randint(1, 3)}]/div[2]",
+                            f"//*[@id='wrapper-learn']/div/div/div[2]/div[2]/div[{i+1}]/div[3]/div[{random.randint(1, 3)}]",
                         ).click()
                         time.sleep(2)
                         with contextlib.suppress(Exception):  # 예외 발생시 (긴급탈출)
