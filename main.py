@@ -13,7 +13,14 @@ from handler.spelling_learning import SpellingLearning
 from handler.test_learning import TestLearning
 
 # 함수불러오기
-from utility import chd_wh, get_account, word_get, choice_set, choice_class
+from utility import (
+    chd_wh,
+    get_account,
+    word_get,
+    choice_set,
+    choice_class,
+    classcard_api_post,
+)
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -98,6 +105,8 @@ set_site = (
 driver.get(set_site)  # 세트 페이지로 이동
 time.sleep(1)
 
+user_id = int(driver.execute_script("return c_u;"))  # 유저 아이디 가져오기
+
 ch_d = chd_wh()  # 학습유형 선택
 
 driver.find_element(
@@ -135,6 +144,33 @@ while 1:
         print("테스트학습을 시작합니다.")
         controler = TestLearning(driver=driver)
         controler.run(num_d=num_d, word_d=word_d)
+    elif ch_d == 5:
+        print("암기학습 API 요청을 시작합니다.")
+        classcard_api_post(
+            user_id=user_id,
+            set_id=sets_dict[choice_set_val]["set_id"],
+            class_id=class_id,
+            view_cnt=num_d,
+            activity=1,
+        )
+    elif ch_d == 6:
+        print("리콜학습 API 요청을 시작합니다.")
+        classcard_api_post(
+            user_id=user_id,
+            set_id=sets_dict[choice_set_val]["set_id"],
+            class_id=class_id,
+            view_cnt=num_d,
+            activity=2,
+        )
+    elif ch_d == 7:
+        print("스펠학습 API 요청을 시작합니다.")
+        classcard_api_post(
+            user_id=user_id,
+            set_id=sets_dict[choice_set_val]["set_id"],
+            class_id=class_id,
+            view_cnt=num_d,
+            activity=3,
+        )
     print("학습이 종료되었습니다.")
     driver.get(set_site)  # 다시 세트페에지로 이동
     ch_d = chd_wh()  # 다시 선택

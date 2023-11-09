@@ -41,18 +41,21 @@ def word_get(driver: webdriver.Chrome, num_d: int) -> list:
 def chd_wh() -> int:  # 학습유형 선택
     os.system("cls")
     choice_dict = {
-        1: "암기학습",
-        2: "리콜학습",
-        3: "스펠학습",
-        4: "테스트학습",
+        1: "암기학습(매크로)",
+        2: "리콜학습(매크로)",
+        3: "스펠학습(매크로)",
+        4: "테스트학습(매크로)",
+        5: "암기학습(API 요청[경고])",
+        6: "리콜학습(API 요청[경고])",
+        7: "스펠학습(API 요청[경고])",
     }
     print(
-        "학습유형을 선택해주세요.\nCtrl + C 를 눌러 종료\n[1] 암기학습(메크로)\n[2] 리콜학습(메크로)\n[3] 스펠학습(메크로)\n[4] 테스트학습(메크로)"
+        "학습유형을 선택해주세요.\nCtrl + C 를 눌러 종료\n[1] 암기학습(매크로)\n[2] 리콜학습(매크로)\n[3] 스펠학습(매크로)\n[4] 테스트학습(매크로)\n[5] 암기학습(API 요청[경고])\n[6] 리콜학습(API 요청[경고])\n[7] 스펠학습(API 요청[경고])"
     )
     while 1:
         try:
             ch_d = int(input(">>> "))
-            if ch_d >= 1 and ch_d <= 5:
+            if ch_d >= 1 and ch_d <= 7:
                 break
             else:
                 raise ValueError
@@ -135,6 +138,21 @@ def save_id() -> dict:
         else:
             print("아이디 또는 비밀번호가 잘못되었습니다.\n")
             continue
+
+
+def classcard_api_post(
+    user_id: int,
+    set_id: int,
+    class_id: int,
+    view_cnt: int,
+    activity: int,
+) -> None:
+    url = "https://www.classcard.net/ViewSetAsync/resetAllLog"
+    payload = f"set_idx={set_id}&activity={activity}&user_idx={user_id}&view_cnt={view_cnt}&class_idx={class_id}"
+    headers = {
+        "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+    }
+    requests.request("POST", url, data=payload, headers=headers)
 
 
 def get_account() -> dict:
