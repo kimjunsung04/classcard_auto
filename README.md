@@ -2,7 +2,7 @@
 
 ## 시연영상
 
-[영상부분]
+https://github.com/kimjunsung04/classcard_auto/assets/70435510/3261a3ad-7820-4796-9cfd-48d01957f699
 
 ## Getting Started / 어떻게 시작하나요?
 
