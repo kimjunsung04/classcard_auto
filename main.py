@@ -5,341 +5,137 @@ import warnings
 import chromedriver_autoinstaller
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.common.exceptions import (ElementClickInterceptedException,
-                                        NoSuchElementException)
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.action_chains import ActionChains
+
 from selenium.webdriver.common.by import By
+from handler.recall_learning import RecallLearning
+from handler.rote_learning import RoteLearning
+from handler.spelling_learning import SpellingLearning
+from handler.test_learning import TestLearning
 
 # 함수불러오기
-from utility import chd_wh, get_id, word_get
+from utility import chd_wh, get_account, word_get, choice_set, choice_class
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-account = get_id()
-
-class_site = input("학습할 세트URL을 입력하세요 : ")
-
-ch_d = chd_wh()
+account = get_account()  # 계정 가져오기
 
 print("크롬 드라이브를 불러오고 있습니다 잠시만 기다려주세요!")
 
 # 장치 동작하지않음 방지
 options = webdriver.ChromeOptions()
 options.add_experimental_option("excludeSwitches", ["enable-logging"])
-driver = webdriver.Chrome(
-    service=Service(chromedriver_autoinstaller.install()), options=options
-)
+
+chromedriver_autoinstaller.install()
+driver = webdriver.Chrome(options=options)
 
 driver.get("https://www.classcard.net/Login")
-tag_id = driver.find_element_by_id("login_id")
-tag_pw = driver.find_element_by_id("login_pwd")
+tag_id = driver.find_element(By.ID, "login_id")
+tag_pw = driver.find_element(By.ID, "login_pwd")
 tag_id.clear()
 tag_id.send_keys(account["id"])
 tag_pw.send_keys(account["pw"])
-driver.find_element_by_css_selector(
-    "#loginForm > div.checkbox.primary.text-primary.text-center.m-t-md > button"
+
+driver.find_element(
+    By.CSS_SELECTOR,
+    "#loginForm > div.checkbox.primary.text-primary.text-center.m-t-md > button",
 ).click()
 
-try:
-    time.sleep(1)
-    driver.get(class_site)
-    driver.find_elements(By.XPATH, "//div[@class='p-b-sm']")
-except:
-    print("\n입력한 URL이 잘못되어 프로그램을 종료합니다\n")
-    input("종료하려면 아무 키나 누르세요...")
+time.sleep(1)  # 로그인이 늦어지는 경우를 대비
+
+class_dict = {}
+class_list_element = driver.find_element(
+    By.XPATH, "/html/body/div[1]/div[2]/div/div/div[1]/div[3]/div[2]"
+)
+for class_item, i in zip(
+    class_list_element.find_elements(By.TAG_NAME, "a"),
+    range(len(class_list_element.find_elements(By.TAG_NAME, "a"))),
+):
+    class_temp = {}
+    class_temp["class_name"] = class_item.text
+    class_temp["class_id"] = class_item.get_attribute("href").split("/")[-1]
+    if class_temp["class_id"] == "joinClass":
+        break
+    class_dict[i] = class_temp
+
+if len(class_dict) == 0:
+    print("클래스가 없습니다.")
     quit()
+elif len(class_dict) == 1:
+    choice_class_val = 0
+else:
+    choice_class_val = choice_class(class_dict=class_dict)  # 클래스 선택
+class_id = class_dict[choice_class_val].get("class_id")  # 클래스 아이디 가져오기
+
+driver.get(f"https://www.classcard.net/ClassMain/{class_id}")  # 클래스 페이지로 이동
+
+time.sleep(1)  # 로딩 대기
+
+sets_list = []
+sets_div = driver.find_element(
+    By.XPATH, "/html/body/div[1]/div[2]/div/div/div[2]/div[3]/div"
+)
+sets = sets_div.find_elements(By.CLASS_NAME, "set-items")
+sets_dict = {}
+for set_item, i in zip(sets, range(len(sets))):
+    set_temp = {}
+    set_temp["card_num"] = (  # 카드 개수 가져오기(10 카드)
+        set_item.find_element(By.TAG_NAME, "a").find_element(By.TAG_NAME, "span").text
+    )
+    set_temp["title"] = set_item.find_element(By.TAG_NAME, "a").text.replace(
+        set_temp["card_num"], ""
+    )  # 카드 개수 제거
+    set_temp["set_id"] = set_item.find_element(By.TAG_NAME, "a").get_attribute(
+        "data-idx"
+    )  # 세트 아이디 가져오기
+    sets_dict[i] = set_temp
+choice_set_val = choice_set(sets_dict)  # 세트 선택
+
+set_site = (
+    f"https://www.classcard.net/set/{sets_dict[choice_set_val]['set_id']}/{class_id}"
+)
+
+driver.get(set_site)  # 세트 페이지로 이동
 time.sleep(1)
 
-driver.find_element_by_css_selector(
-    "body > div.mw-1080 > div.p-b-sm > div.set-body.m-t-25.m-b-lg > div.m-b-md > div > a"
-).click()
-driver.find_element_by_css_selector(
-    "body > div.mw-1080 > div.p-b-sm > div.set-body.m-t-25.m-b-lg > div.m-b-md > div > ul > li:nth-child(1)"
-).click()
+ch_d = chd_wh()  # 학습유형 선택
 
-html = BeautifulSoup(driver.page_source, "html.parser")
-cards_ele = html.find("div", class_="flip-body")
-num_d = len(cards_ele.find_all("div", class_="flip-card")) + 1
+driver.find_element(
+    By.CSS_SELECTOR,
+    "body > div.mw-1080 > div.p-b-sm > div.set-body.m-t-25.m-b-lg > div.m-b-md > div > a",
+).click()  # 학습구간 선택
+driver.find_element(
+    By.CSS_SELECTOR,
+    "body > div.mw-1080 > div.p-b-sm > div.set-body.m-t-25.m-b-lg > div.m-b-md > div > ul > li:nth-child(1)",
+).click()  # 학습구간 전체로 변경
 
-time.sleep(0.5)
+html = BeautifulSoup(driver.page_source, "html.parser")  # 페이지 소스를 html로 파싱
+cards_ele = html.find("div", class_="flip-body")  # 카드들을 찾음
+num_d = len(cards_ele.find_all("div", class_="flip-card")) + 1  # 카드의 개수를 구함
 
-word_d = word_get(driver, num_d)
+time.sleep(0.5)  # 로딩 대기
 
-da_e = word_d[0]
-da_k = word_d[1]
-da_kyn = word_d[2]
+word_d = word_get(driver, num_d)  # 단어를 가져옴
+
+da_e, da_k, da_kyn = word_d
 while 1:
     if ch_d == 1:
-        driver.find_element_by_css_selector(
-            "#tab_set_all > div.card-list-title > div > div.text-right > a:nth-child(1)"
-        ).click()
-        for i in range(1, num_d):
-            time.sleep(2.5)
-            try:
-                driver.find_element_by_css_selector(
-                    "#wrapper-learn > div > div > div.study-bottom > div.btn-text.btn-down-cover-box"
-                ).click()
-                time.sleep(0.5)
-                driver.find_element_by_css_selector(
-                    "#wrapper-learn > div > div > div.study-bottom.down > div.btn-text.btn-know-box"
-                ).click()
-            except:
-                break
-        time.sleep(1)
-        driver.find_element_by_css_selector(
-            "body > div.study-header-body > div > div:nth-child(1) > div:nth-child(1) > a"
-        ).click()
+        print("암기학습을 시작합니다.")
+        controler = RoteLearning(driver=driver)  # 암기 학습 클래스 생성
+        controler.run(num_d=num_d)  # 학습 시작
     elif ch_d == 2:
-        driver.find_element_by_css_selector(
-            "#tab_set_all > div.card-list-title > div > div.text-right > a:nth-child(2)"
-        ).click()
-
-        time.sleep(2)
-
-        for i in range(1, num_d):
-            try:
-                cash_d = driver.find_element_by_xpath(
-                    f"//*[@id='wrapper-learn']/div/div/div[2]/div[2]/div[{i}]/div[1]/div/div/div/div[1]/span"
-                ).text
-
-                cash_dby = [0, 0, 0]
-
-                for j in range(0, 3):
-                    cash_dby[j] = driver.find_element_by_xpath(
-                        f"//*[@id='wrapper-learn']/div/div/div[2]/div[2]/div[{i}]/div[3]/div[{j+1}]/div[2]/div"
-                    ).text
-
-                ck = False
-                if cash_d.upper() != cash_d.lower():
-                    try:
-                        for j in range(0, 3):
-                            if da_e.index(cash_d) == da_kyn.index(cash_dby[j]):
-                                driver.find_element_by_xpath(
-                                    f"//*[@id='wrapper-learn']/div/div/div[2]/div[2]/div[{i}]/div[3]/div[{j+1}]/div[2]"
-                                ).click()
-                                ck = True
-                                break
-                    except:
-                        pass
-                    if ck != True:
-                        print("\n찾을수없는 단어 감지로 랜덤으로 찍기발동!!\n")
-                        driver.find_element_by_xpath(
-                            f"//*[@id='wrapper-learn']/div/div/div[2]/div[2]/div[{i}]/div[3]/div[{random.randint(1, 4)}]/div[2]"
-                        ).click()
-                        time.sleep(2)
-                        try:
-                            driver.find_element_by_xpath(
-                                f"//*[@id='wrapper-learn']/div/div/div[3]/div[2]"
-                            ).click()
-                        except:
-                            pass
-                time.sleep(2.5)
-            except:
-                driver.find_element_by_xpath(
-                    f"/html/body/div[1]/div/div[1]/div[1]"
-                ).click()
-                time.sleep(1)
-                driver.find_element_by_xpath(
-                    f"//*[@id='topBackModal']/div[2]/div/div/a[5]"
-                ).click()
-                break
+        print("리콜학습을 시작합니다.")
+        controler = RecallLearning(driver=driver)  # 암기 학습 클래스 생성
+        controler.run(num_d=num_d, word_d=word_d)  # 학습 시작
     elif ch_d == 3:
-        driver.find_element_by_css_selector(
-            "#tab_set_all > div.card-list-title > div > div.text-right > a:nth-child(3)"
-        ).click()
-
-        time.sleep(2)
-        try:
-            for i in range(1, num_d):
-                cash_d = driver.find_element_by_xpath(
-                    f"//*[@id='wrapper-learn']/div/div/div[2]/div[2]/div[{i}]/div[1]/div/div/div/div[1]/span[1]"
-                ).text
-                print(cash_d)
-                if cash_d.upper() != cash_d.lower():
-                    try:
-                        text = da_k[da_e.index(cash_d)]
-                    except ValueError:
-                        text = da_e[da_k.index(cash_d)]
-                else:
-                    text = da_e[da_k.index(cash_d)]
-                in_tag = driver.find_element_by_css_selector(
-                    "#wrapper-learn > div > div > div.study-content.cc-table.middle > div.study-body.fade.in > div.CardItem.current.showing > div.card-bottom > div > div > div > div.text-normal.spell-input > input"
-                )
-                in_tag.click()
-                in_tag.send_keys(text)
-                driver.find_element_by_xpath(
-                    "//*[@id='wrapper-learn']/div/div/div[3]"
-                ).click()
-                time.sleep(1.5)
-                try:
-                    driver.find_element_by_xpath(
-                        "//*[@id='wrapper-learn']/div/div/div[3]/div[2]"
-                    ).click()
-                except:
-                    pass
-                i += 1
-                time.sleep(1)
-        except NoSuchElementException:
-            pass
+        print("스펠학습을 시작합니다.")
+        controler = SpellingLearning(driver=driver)  # 스펠 학습 클래스 생성
+        controler.run(num_d=num_d, word_d=word_d)  # 학습 시작
     elif ch_d == 4:
-        driver.find_element_by_xpath(
-            "/html/body/div[1]/div[4]/div/div/div[3]/a[1]"
-        ).click()
-        time.sleep(0.5)
-        try:
-            driver.find_element_by_xpath(
-                "/html/body/div[26]/div[2]/div/div[3]/a"
-            ).click()
-
-            driver.get(class_site)
-
-            driver.find_element_by_xpath(
-                "/html/body/div[1]/div[4]/div/div/div[3]/a[1]"
-            ).click()
-
-            time.sleep(1)
-        except:
-            pass
-
-        driver.find_element_by_xpath(
-            "/html/body/div[2]/div/div[1]/div[1]/div[4]/a"
-        ).click()
-
-        driver.find_element_by_xpath(
-            "/html/body/div[2]/div/div[1]/div[3]/div[3]/a"
-        ).click()
-
-        time.sleep(2)
-        for i in range(1, 21):
-            cash_d = driver.find_element_by_xpath(
-                f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[1]/div[2]/div/div/div"
-            ).text
-
-            element = driver.find_element_by_xpath(
-                f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[1]/div[2]"
-            )
-            driver.execute_script("arguments[0].click();", element)
-
-            cash_dby = [0, 0, 0, 0]
-
-            for j in range(0, 4):
-                cash_dby[j] = driver.find_element_by_xpath(
-                    f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[2]/div/div[1]/div[{j+1}]/label/div/div"
-                ).text
-
-            time.sleep(2)
-            ck = False
-            if cash_d.upper() != cash_d.lower():
-                for j in range(0, 4):
-                    if da_e.index(cash_d) == da_k.index(cash_dby[j]):
-                        element = driver.find_element_by_xpath(
-                            f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[2]/div/div[1]/div[{j+1}]/label/div/div"
-                        )
-                        driver.execute_script("arguments[0].click();", element)
-                        ck = True
-                        break
-            else:
-                for j in range(0, 4):
-                    if da_k.index(cash_d) == da_e.index(cash_dby[j]):
-                        element = driver.find_element_by_xpath(
-                            f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[2]/div/div[1]/div[{j+1}]/label/div/div"
-                        )
-                        driver.execute_script("arguments[0].click();", element)
-                        ck = True
-                        break
-            if ck != True:
-                print("\n찾을수없는 단어 감지로 랜덤으로 찍기발동!!\n")
-                driver.find_element_by_xpath(
-                    f"/html/body/div[2]/div/div[2]/div[1]/form/div[{i}]/div/div[2]/div/div[1]/div[{random.randint(1, 4)}]/label/div/div"
-                ).click()
-                time.sleep(2)
-            time.sleep(3)
-    if ch_d == 5:
-        print("Ctrl + C 를 눌러 강제 종료")
-        ##매칭 게임
-        driver.find_element_by_css_selector(
-            "a.w-120:nth-child(2) > div:nth-child(1)"
-        ).click()
-        time.sleep(1)
-
-        # 단어 1000개 이상
-        try:
-            driver.find_element_by_xpath(
-                "/html/body/div[53]/div[2]/div/div[2]/a[3]"
-            ).click()
-            time.sleep(1)
-        except Exception as e:
-            pass
-        driver.find_element_by_xpath(
-            "/html/body/div[5]/div[2]/div/div/div[1]/div[4]/a[1]"
-        ).click()
-        # 매칭 게임 시작
-        time.sleep(2.5)
-        past_cards = ""
-        while True:
-            try:
-                html = BeautifulSoup(driver.page_source, "html.parser")
-                # 점수 순으로 정렬
-                unsorted_cards = dict()
-                cards = html.find("div", class_="match-body").get_text(strip=True)
-                # 이전 카드와 같으면 다시
-                if past_cards == cards:
-                    raise NotImplementedError
-                for i in range(4):
-                    left_card = html.find("div", id="left_card_{}".format(i))
-                    score = int(
-                        left_card.find("span", class_="card-score").get_text(strip=True)
-                    )
-                    left_card.find("span", class_="card-score").decompose()
-                    question = left_card.get_text(strip=True)
-                    unsorted_cards["{}_{}".format(question, str(i))] = score
-                    # 점수 높은 순서로 배열
-                    sorted_lists = {
-                        k: v
-                        for k, v in sorted(
-                            unsorted_cards.items(), key=lambda item: item[1]
-                        )
-                    }.keys()
-                for k in sorted_lists:
-                    word = k.split("_")[0]
-                    order = k.split("_")[1]
-                    # answer = list[word]
-                    answer = da_k[da_e.index(word)]
-
-                    for j in range(4):
-                        right_card = html.find(
-                            "div", id="right_card_{}".format(j)
-                        ).get_text(strip=True)
-                        if right_card == answer:
-                            left_element = driver.find_element_by_id(
-                                "left_card_{}".format(order)
-                            )
-                            right_element = driver.find_element_by_id(
-                                "right_card_{}".format(j)
-                            )
-                            try:
-                                left_element.click()
-                                right_element.click()
-                            except ElementClickInterceptedException:
-                                action = ActionChains(driver)
-                                action.click(on_element=left_element)
-                                action.click(on_element=right_element)
-                                action.perform()
-                                action.reset_actions()
-                            raise NotImplementedError
-                        else:
-                            continue
-            except NotImplementedError:
-                if driver.find_element_by_class_name("rank-info").size["height"] > 0:
-                    print("완료되었습니다")
-                    driver.find_element_by_css_selector(".btn-default").click()
-                    time.sleep(1)
-                    break
-                else:
-                    past_cards = cards
-            except KeyboardInterrupt:
-                break
-
-    driver.get(class_site)
-    ch_d = chd_wh()
+        print("테스트학습을 시작합니다.")
+        controler = TestLearning(driver=driver)
+        controler.run(num_d=num_d, word_d=word_d)
+    print("학습이 종료되었습니다.")
+    driver.get(set_site)  # 다시 세트페에지로 이동
+    ch_d = chd_wh()  # 다시 선택
+    driver.get(set_site)  # 다시 세트페에지로 이동
+    time.sleep(1)
