@@ -44,7 +44,8 @@ time.sleep(1)  # 로그인이 늦어지는 경우를 대비
 
 class_dict = {}
 class_list_element = driver.find_element(
-    By.XPATH, "/html/body/div[1]/div[2]/div/div/div[1]/div[3]/div[2]"
+    By.CSS_SELECTOR,
+    "body > div.mw-1080 > div:nth-child(6) > div > div > div.left-menu > div.left-item-group.p-t-none.p-r-lg > div.m-t-sm.left-class-list",
 )
 for class_item, i in zip(
     class_list_element.find_elements(By.TAG_NAME, "a"),
