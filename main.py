@@ -143,9 +143,7 @@ word_d = word_get(driver, num_d)  # 단어를 가져옴
 da_e, da_k, da_kyn = word_d
 while 1:
     if ch_d == 1:
-        print("암기학습을 시작합니다.")
-        controler = RoteLearning(driver=driver)  # 암기 학습 클래스 생성
-        controler.run(num_d=num_d)  # 학습 시작
+        print("암기학습은 지원하지 않습니다.")
     elif ch_d == 2:
         print("리콜학습을 시작합니다.")
         controler = RecallLearning(driver=driver)  # 암기 학습 클래스 생성
@@ -155,9 +153,8 @@ while 1:
         controler = SpellingLearning(driver=driver)  # 스펠 학습 클래스 생성
         controler.run(num_d=num_d, word_d=word_d)  # 학습 시작
     elif ch_d == 4:
-        print("테스트학습을 시작합니다.")
-        controler = TestLearning(driver=driver)
-        controler.run(num_d=num_d, word_d=word_d)
+        print("테스트학습은 지원하지 않습니다.")
+
     elif ch_d == 5:
         print("암기학습 API 요청을 시작합니다.")
         classcard_api_post(
