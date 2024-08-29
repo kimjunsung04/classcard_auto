@@ -16,6 +16,7 @@
 
 * 테스트
 
+혹시 몰라 rote_learning.py와 test_learning.py는 남겨놓겠지만 사용하지 않습니다.
   
 # 클래스카드 오토 매크로
 
