@@ -1,5 +1,5 @@
 # 포크
-본 리포지토리는 김준성님꼐서 제작하신 classcard_auto를 업데이트된 classcard에서 동작하도록 포크하여 제작하였습니다.
+본 리포지토리는 김준성님께서 제작하신 classcard_auto를 업데이트된 classcard에서 동작하도록 포크하여 제작하였습니다.
 
 # 수정사항
 ### main.py 
