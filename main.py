@@ -57,8 +57,8 @@ tag_id.send_keys(account["id"])
 tag_pw.send_keys(account["pw"])
 
 driver.find_element(
-    By.CSS_SELECTOR,
-    "#loginForm > div.checkbox.primary.text-primary.text-center.m-t-md > button",
+    By.XPATH,
+    "/html/body/div[1]/div[2]/div/div/div/form/div[3]/a",
 ).click()
 
 time.sleep(1)  # 로그인이 늦어지는 경우를 대비
