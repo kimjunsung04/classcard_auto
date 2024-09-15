@@ -1,19 +1,10 @@
-import random
 import time
 import warnings
-
-
 from bs4 import BeautifulSoup
 from selenium import webdriver
-
 from selenium.webdriver.common.by import By
 from handler.recall_learning import RecallLearning
-from handler.rote_learning import RoteLearning
 from handler.spelling_learning import SpellingLearning
-from handler.test_learning import TestLearning
-
-from webdriver_manager.chrome import ChromeDriverManager
-
 from selenium.webdriver.chrome.options import Options
 
 # 함수불러오기
@@ -55,10 +46,10 @@ tag_pw = driver.find_element(By.ID, "login_pwd")
 tag_id.clear()
 tag_id.send_keys(account["id"])
 tag_pw.send_keys(account["pw"])
-
+time.sleep(1)
 driver.find_element(
     By.XPATH,
-    "/html/body/div[1]/div[2]/div/div/div/form/div[3]/a",
+    "/html/body/div[1]/div/div/div/div/form/div[3]/a",
 ).click()
 
 time.sleep(1)  # 로그인이 늦어지는 경우를 대비
