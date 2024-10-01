@@ -33,7 +33,7 @@ chrome_options.add_argument("--disable-blink-features=AutomationControlled")
 chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
 
 chrome_options.add_experimental_option('useAutomationExtension', False)
-
+options.add_argument('--log-level=1')
 
 
 # 드라이버 생성
