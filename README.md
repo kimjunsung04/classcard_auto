@@ -15,15 +15,21 @@ https://github.com/kimjunsung04/classcard_auto/assets/70435510/3261a3ad-7820-479
 아래 사항들이 설치가 되어있어야합니다.
 
 ```
-Chrome
+Python, Chrome
 ```
 
 ### Installing / 설치
 
-아래 사항들로 현 프로젝트에 관한 모듈들을 설치할 수 있습니다.
+아래 명령어로 프로젝트에 필요한 파이썬 모듈들을 설치할 수 있습니다.
 
 ```
 pip install -r requirements.txt
+```
+
+구동은 아래 명령어로 가능합니다.
+
+```
+python main.py
 ```
 
 ### 구현방법
