@@ -1,16 +1,11 @@
-import random
 import time
 import warnings
-
-import chromedriver_autoinstaller
 from bs4 import BeautifulSoup
 from selenium import webdriver
-
 from selenium.webdriver.common.by import By
 from handler.recall_learning import RecallLearning
-from handler.rote_learning import RoteLearning
 from handler.spelling_learning import SpellingLearning
-from handler.test_learning import TestLearning
+from selenium.webdriver.chrome.options import Options
 
 # 함수불러오기
 from utility import (
@@ -28,12 +23,15 @@ account = get_account()  # 계정 가져오기
 
 print("크롬 드라이브를 불러오고 있습니다 잠시만 기다려주세요!")
 
-# 장치 동작하지않음 방지
-options = webdriver.ChromeOptions()
-options.add_experimental_option("excludeSwitches", ["enable-logging"])
+# Chrome 옵션 설정
+chrome_options = Options()
+chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+chrome_options.add_experimental_option('useAutomationExtension', False)
+chrome_options.add_argument('--log-level=1')
 
-chromedriver_autoinstaller.install()
-driver = webdriver.Chrome(options=options)
+# 드라이버 생성
+driver = webdriver.Chrome(options=chrome_options)
 
 driver.get("https://www.classcard.net/Login")
 tag_id = driver.find_element(By.ID, "login_id")
@@ -41,10 +39,10 @@ tag_pw = driver.find_element(By.ID, "login_pwd")
 tag_id.clear()
 tag_id.send_keys(account["id"])
 tag_pw.send_keys(account["pw"])
-
+time.sleep(1)
 driver.find_element(
-    By.CSS_SELECTOR,
-    "#loginForm > div.checkbox.primary.text-primary.text-center.m-t-md > button",
+    By.XPATH,
+    "/html/body/div[1]/div/div/div/div/form/div[3]/a",
 ).click()
 
 time.sleep(1)  # 로그인이 늦어지는 경우를 대비
@@ -111,11 +109,11 @@ ch_d = chd_wh()  # 학습유형 선택
 
 driver.find_element(
     By.CSS_SELECTOR,
-    "body > div.mw-1080 > div.p-b-sm > div.set-body.m-t-25.m-b-lg > div.m-b-md > div > a",
+    "body > div.test > div.p-b-sm > div.set-body.m-t-25.m-b-lg > div.m-b-md.pos-relative > div.dropdown > a",
 ).click()  # 학습구간 선택
 driver.find_element(
     By.CSS_SELECTOR,
-    "body > div.mw-1080 > div.p-b-sm > div.set-body.m-t-25.m-b-lg > div.m-b-md > div > ul > li:nth-child(1)",
+    "body > div.test > div.p-b-sm > div.set-body.m-t-25.m-b-lg > div.m-b-md.pos-relative > div.dropdown.open > ul > li:nth-child(1) > a",
 ).click()  # 학습구간 전체로 변경
 
 html = BeautifulSoup(driver.page_source, "html.parser")  # 페이지 소스를 html로 파싱
@@ -129,9 +127,7 @@ word_d = word_get(driver, num_d)  # 단어를 가져옴
 da_e, da_k, da_kyn = word_d
 while 1:
     if ch_d == 1:
-        print("암기학습을 시작합니다.")
-        controler = RoteLearning(driver=driver)  # 암기 학습 클래스 생성
-        controler.run(num_d=num_d)  # 학습 시작
+        print("암기학습은 지원하지 않습니다.")
     elif ch_d == 2:
         print("리콜학습을 시작합니다.")
         controler = RecallLearning(driver=driver)  # 암기 학습 클래스 생성
@@ -141,9 +137,8 @@ while 1:
         controler = SpellingLearning(driver=driver)  # 스펠 학습 클래스 생성
         controler.run(num_d=num_d, word_d=word_d)  # 학습 시작
     elif ch_d == 4:
-        print("테스트학습을 시작합니다.")
-        controler = TestLearning(driver=driver)
-        controler.run(num_d=num_d, word_d=word_d)
+        print("테스트학습은 지원하지 않습니다.")
+
     elif ch_d == 5:
         print("암기학습 API 요청을 시작합니다.")
         classcard_api_post(
