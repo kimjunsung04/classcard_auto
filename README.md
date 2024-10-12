@@ -20,13 +20,15 @@ Python, Chrome
 
 ### Installing / 설치
 
+1. 초록색 'Code' 버튼을 눌러 코드를 다운받습니다. 
+2. 터미널을 열어 파이썬 모듈을 설치합니다. 
 아래 명령어로 프로젝트에 필요한 파이썬 모듈들을 설치할 수 있습니다.
 
 ```
 pip install -r requirements.txt
 ```
 
-구동은 아래 명령어로 가능합니다.
+3. 구동은 아래 명령어로 가능합니다.
 
 ```
 python main.py
