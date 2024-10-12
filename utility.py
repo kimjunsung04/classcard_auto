@@ -41,16 +41,24 @@ def word_get(driver: webdriver.Chrome, num_d: int) -> list:
 def chd_wh() -> int:  # 학습유형 선택
     os.system("cls")
     choice_dict = {
-        1: "암기학습(매크로)",
+        1: "암기학습(매크로) 지원하지 않음",
         2: "리콜학습(매크로)",
         3: "스펠학습(매크로)",
-        4: "테스트학습(매크로)",
+        4: "테스트학습(매크로) 지원하지 않음",
         5: "암기학습(API 요청[경고])",
         6: "리콜학습(API 요청[경고])",
         7: "스펠학습(API 요청[경고])",
     }
     print(
-        "학습유형을 선택해주세요.\nCtrl + C 를 눌러 종료\n[1] 암기학습(매크로)\n[2] 리콜학습(매크로)\n[3] 스펠학습(매크로)\n[4] 테스트학습(매크로)\n[5] 암기학습(API 요청[경고])\n[6] 리콜학습(API 요청[경고])\n[7] 스펠학습(API 요청[경고])"
+        "학습유형을 선택해주세요.\n"
+        "Ctrl + C 를 눌러 종료\n"
+        "[1] 암기학습(매크로) 지원하지 않음\n"
+        "[2] 리콜학습(매크로)\n"
+        "[3] 스펠학습(매크로)\n"
+        "[4] 테스트학습(매크로) 지원하지 않음\n"
+        "[5] 암기학습(API 요청[경고])\n"
+        "[6] 리콜학습(API 요청[경고])\n"
+        "[7] 스펠학습(API 요청[경고])"
     )
     while 1:
         try:
@@ -93,7 +101,7 @@ def choice_set(sets: dict) -> int:  # 세트 선택
 
 
 def choice_class(class_dict: dict) -> int:  # 학습할 반 선택
-    os.system("cls")
+    os.system('cls' if os.name == 'nt' else 'clear')
     print("학습할 클래스를 선택해주세요.")
     print("Ctrl + C 를 눌러 종료")
     for class_item in class_dict:
