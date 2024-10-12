@@ -101,7 +101,7 @@ def choice_set(sets: dict) -> int:  # 세트 선택
 
 
 def choice_class(class_dict: dict) -> int:  # 학습할 반 선택
-    os.system("cls")
+    os.system('cls' if os.name == 'nt' else 'clear')
     print("학습할 클래스를 선택해주세요.")
     print("Ctrl + C 를 눌러 종료")
     for class_item in class_dict:
