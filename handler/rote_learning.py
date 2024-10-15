@@ -23,9 +23,9 @@ class RoteLearning:
             try:
                 self.button_auto_pass(
                     driver,
-                    "#wrapper-learn > div > div > div.study-bottom > div.btn-text.btn-down-cover-box",  # 의미 보기
+                    "#wrapper-learn > div.cc-table.fill-parent-h.middle.m-center > div > div.study-content.cc-table.middle.pos-relative > div.study-body.fade.in > div.CardItem.showing.current > div.card-cover",  # 의미 보기
                     0.5,
-                    "#wrapper-learn > div > div > div.study-bottom.down > div.btn-text.btn-know-box",  # 이제 알아요
+                    "#wrapper-learn > div.cc-table.fill-parent-h.middle.m-center > div > div.study-bottom.down > div.btn-text.btn-know-box > a",  # 이제 알아요
                 )  # 카드 넘기기
             except Exception:
                 break
