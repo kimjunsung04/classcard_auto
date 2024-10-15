@@ -48,6 +48,10 @@
 ## 설치프로그램은 릴리즈 항목에서 다운로드가 가능합니다.
 > 프로그램 실행시 ```Created TensorFlow Lite XNNPACK delegate for CPU.``` 이문구는 Selenium에서 출력되는 메시지입니다.
 
+# 향후 개발
+뭐 이걸 개발이라해도 뭐하지만 PyQt5 공부용으로 GUI를 넣어보고있습니다.
+
+~~역시 PyQt5.. 나만힘든게 아니였어~~
 
 # 클래스카드 오토 매크로
 
